@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-     
+    
+     <div>
     <h1>Please upload an image below:</h1>
-    <form action="/" enctype="multipart/form-data" method="POST">
-      <input type="file" name="file-to-upload">
-      <input type="submit" value="Upload">
+    <form action="/" enctype="multipart/form-data" method="POST" id="form1">
+      <input type="file" name="file-emotion-upload">
+      <input type="file" name="file-image-upload">
+      <input type="submit" value="Upload" form="form1">
     </form>  
+    </div>
+
   </body>
 </html>

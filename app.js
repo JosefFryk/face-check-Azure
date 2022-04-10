@@ -3,6 +3,22 @@ const app = express();
 const multer = require("multer");
 const upload = multer({
   storage: multer.diskStorage({}),
+  
+  destination: function (req, file, cd) {
+    if (file.fieldname === 'emotion-upload') {
+        cd(null, '/');
+    }
+
+    else if (file.fieldname === 'image-upload') {
+        cd(null, '/');
+    }
+    
+},
+
+filename: function (req, file, cd) {
+  cd(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+},
+
   fileFilter: (req, file, cb) => {
     let ext = path.extname(file.originalname);
     if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
@@ -54,7 +70,11 @@ app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
-app.post("/", upload.single("file-to-upload"), async (req, res) => {
+
+////emotion-check/////
+
+
+app.post("/", upload.single("emotion-upload"), async (req, res) => {
   try {
     // Upload image to cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
@@ -90,5 +110,58 @@ app.post("/", upload.single("file-to-upload"), async (req, res) => {
     console.log(err);
   }
 });
+
+app.post("/", upload.single("image-upload"), async (req, res) => {
+  try {
+    let hotDogCount = 0;
+    // Upload image to cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const objectURL = result.secure_url;
+
+    // Analyze a URL image
+    console.log("Analyzing objects in image...", objectURL.split("/").pop());
+
+    const objects = (
+      await computerVisionClient.analyzeImage(objectURL, {
+        visualFeatures: ["Objects"],
+      })
+    ).objects;
+    console.log();
+
+    // Print objects bounding box and confidence
+    if (objects.length) {
+      console.log(
+        `${objects.length} object${objects.length == 1 ? "" : "s"} found:`
+      );
+      for (const obj of objects) {
+        if (obj.object === "Hot dog") {
+          hotDogCount = hotDogCount + 1;
+        }
+        console.log(
+          `    ${obj.object} (${obj.confidence.toFixed(
+            2
+          )}) at ${formatRectObjects(obj.rectangle)}`
+        );
+      }
+    } else {
+      console.log("No objects found.");
+    }
+
+    function formatRectObjects(rect) {
+      return (
+        `top=${rect.y}`.padEnd(10) +
+        `left=${rect.x}`.padEnd(10) +
+        `bottom=${rect.y + rect.h}`.padEnd(12) +
+        `right=${rect.x + rect.w}`.padEnd(10) +
+        `(${rect.w}x${rect.h})`
+      );
+    }
+
+    res.render("result.ejs", { count: hotDogCount, img: objectURL });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 
 app.listen(process.env.PORT || 8000);

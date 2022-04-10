@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-     
-    <img src='<%= img%>' alt='Hot dog'> 
-    
+     <div>
+    <img src='<%= img%>' alt='#'> 
+  
     <ul>
       <li>Anger: <%=data.anger%></li>
       <li>Contempt: <%=data.contempt%></li>
@@ -20,11 +20,26 @@
       <li>Sadness: <%=data.sadness%></li>
       <li>Surprise: <%=data.surprise%></li>
     </ul>
+  
 
-
-    <form action="/" enctype="multipart/form-data" method="post">
-      <input type="file" name="file-to-upload">
-      <input type="submit" value="Upload">
+    <form action="/" enctype="multipart/form-data" method="post" id="form1">
+      <input type="file" name="emotion-upload">
+      <input type="file" name="image-upload">
+      <input type="submit" value="Upload" form="form1">
     </form>  
+    
+
+    
+    <% if(locals.count > 0) { %>
+      <img src='<%= img%>' alt='Hot dog'> 
+      <h1>Hot Dog</h1>
+  <% }else { %>
+      <img src='<%= img%>' alt='Not Hot dog'> 
+      <h1> Not Hot Dog </h1>
+  <% } %>
+
+  
+
+    </div>
   </body>
 </html>
